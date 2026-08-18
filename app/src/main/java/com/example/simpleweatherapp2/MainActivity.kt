@@ -3,10 +3,12 @@ package com.example.simpleweatherapp2
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import com.bumptech.glide.Glide
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
@@ -23,6 +25,7 @@ class MainActivity : AppCompatActivity() {
         val tvTemperature = findViewById<TextView>(R.id.tvTemperature)
         val tvDescription = findViewById<TextView>(R.id.tvDescription)
         val tvHumidity = findViewById<TextView>(R.id.tvHumidity)
+        val weatherImageView = findViewById<ImageView>(R.id.imgWeatherIcon)
 
         btnGetWeather.setOnClickListener {
             val cityName = etCityName.text.toString().trim()
@@ -33,8 +36,6 @@ class MainActivity : AppCompatActivity() {
             }
 
             lifecycleScope.launch {
-                // TODO 1: call RetrofitClient.api.getWeather(...) with the
-                // right arguments, inside a try block.
                 try {
                     val response = RetrofitClient.api.getWeather(
                         cityName,
@@ -42,16 +43,19 @@ class MainActivity : AppCompatActivity() {
                         "metric"
                     )
 
-
-                    // TODO 2: on success, set tvCityResult, tvTemperature and
-                // tvDescription from the response object.
                     tvCityResult.text = response.name
                     tvTemperature.text = "${response.main.temp} °C"
                     tvDescription.text = response.weather[0].description
                     tvHumidity.text = "Humidity: ${response.main.humidity}%"
 
-                // TODO 3: add a catch block. On failure, show a Toast with
-                // a clear, user-friendly error message instead of crashing.
+                    val iconCode = response.weather[0].icon
+
+                    val iconUrl = "https://openweathermap.org" + "/img/wn/" + iconCode + "@2x.png"
+
+                    Glide.with(this@MainActivity)
+                        .load(iconUrl)
+                        .into(weatherImageView)
+
                 } catch (e: Exception) {
                     Toast.makeText(
                         this@MainActivity,
